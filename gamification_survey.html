@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Геймификация сауалнамасы</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f5f5f0;
+    color: #1a1a1a;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 2rem 1rem;
+  }
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e0ddd5;
+    overflow: hidden;
+  }
+  .page-header {
+    background: #1D9E75;
+    color: #fff;
+    padding: 1.5rem 2rem;
+  }
+  .page-header h1 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .page-header p {
+    font-size: 12px;
+    opacity: 0.85;
+  }
+  .form-body { padding: 1.5rem 2rem 2rem; }
+  .section { margin-bottom: 2rem; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eeece5;
+  }
+  .q-block { margin-bottom: 1.2rem; }
+  .q-text {
+    font-size: 13.5px;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .q-num { font-weight: 600; color: #888; margin-right: 4px; }
+  .scale-legend {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #aaa;
+    margin-bottom: 6px;
+  }
+  .scale-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .scale-row label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #fff;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .scale-row label:hover { background: #f0faf5; border-color: #5DCAA5; }
+  .scale-row input[type=radio] { accent-color: #1D9E75; }
+  .scale-row input[type=radio]:checked + span { color: #085041; font-weight: 600; }
+  .opts-col { display: flex; flex-direction: column; gap: 6px; }
+  .opts-col label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: #444;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #e0ddd5;
+    background: #fff;
+    transition: all 0.15s;
+    line-height: 1.5;
+    user-select: none;
+  }
+  .opts-col label:hover { background: #f0faf5; border-color: #5DCAA5; }
+  .opts-col input[type=radio],
+  .opts-col input[type=checkbox] {
+    accent-color: #1D9E75;
+    width: 15px;
+    height: 15px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.2rem; }
+  .info-field label { display: block; font-size: 12px; color: #888; margin-bottom: 4px; }
+  .info-field select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #1a1a1a;
+    background: #fff;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .info-field select:focus { outline: none; border-color: #1D9E75; }
+  textarea {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #1a1a1a;
+    background: #fff;
+    resize: vertical;
+    min-height: 72px;
+    font-family: inherit;
+    line-height: 1.5;
+  }
+  textarea:focus { outline: none; border-color: #1D9E75; }
+  .submit-row { margin-top: 1.5rem; display: flex; justify-content: flex-end; }
+  .submit-btn {
+    background: #1D9E75;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .submit-btn:hover { background: #0F6E56; }
+  .submit-btn:active { transform: scale(0.98); }
+  .thank {
+    display: none;
+    text-align: center;
+    padding: 3rem 2rem;
+  }
+  .thank .icon {
+    width: 56px;
+    height: 56px;
+    background: #E1F5EE;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 24px;
+  }
+  .thank h2 { font-size: 18px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+  .thank p { font-size: 14px; color: #666; }
+  @media (max-width: 480px) {
+    .info-grid { grid-template-columns: 1fr; }
+    .form-body { padding: 1rem 1.2rem 1.5rem; }
+  }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .container { border: none; border-radius: 0; }
+    .submit-row { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="page-header">
+    <h1>Химия пәнін оқытуда геймификация әдісін қолдану туралы сауалнама</h1>
+    <p>8 сынып оқушыларына арналған · Педагогикалық эксперимент қорытындысы · Шымкент қаласы</p>
+  </div>
+
+  <div class="form-body">
+    <form id="survey">
+
+      <!-- Жалпы ақпарат -->
+      <div class="section">
+        <div class="section-label">Жалпы ақпарат</div>
+        <div class="info-grid">
+          <div class="info-field">
+            <label>Сыныбыңыз</label>
+            <select name="class" required>
+              <option value="">Таңдаңыз</option>
+              <option value="exp">8 «Ә» — зерттеу сыныбы</option>
+              <option value="ctrl">8 «Б» — бақылау сыныбы</option>
+            </select>
+          </div>
+          <div class="info-field">
+            <label>Жынысыңыз</label>
+            <select name="gender">
+              <option value="">Таңдаңыз</option>
+              <option value="f">Оқушы қыз</option>
+              <option value="m">Оқушы ұл</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Бөлім 1 -->
+      <div class="section">
+        <div class="section-label">Бөлім 1 — Геймификацияға қатысты жалпы пікір</div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">1.</span>Геймификация элементтері (ойындар, платформалар) қолданылған сабақтар маған қызықты болды</div>
+          <div class="scale-legend"><span>Мүлде келіспеймін</span><span>Толық келісемін</span></div>
+          <div class="scale-row">
+            <label><input type="radio" name="q1" value="1"><span>1</span></label>
+            <label><input type="radio" name="q1" value="2"><span>2</span></label>
+            <label><input type="radio" name="q1" value="3"><span>3</span></label>
+            <label><input type="radio" name="q1" value="4"><span>4</span></label>
+            <label><input type="radio" name="q1" value="5"><span>5</span></label>
+          </div>
+        </div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">2.</span>Геймификация арқылы химия тақырыптарын жақсы түсіндім</div>
+          <div class="scale-legend"><span>Мүлде келіспеймін</span><span>Толық келісемін</span></div>
+          <div class="scale-row">
+            <label><input type="radio" name="q2" value="1"><span>1</span></label>
+            <label><input type="radio" name="q2" value="2"><span>2</span></label>
+            <label><input type="radio" name="q2" value="3"><span>3</span></label>
+            <label><input type="radio" name="q2" value="4"><span>4</span></label>
+            <label><input type="radio" name="q2" value="5"><span>5</span></label>
+          </div>
+        </div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">3.</span>Ойын форматындағы тапсырмалар сабаққа белсенді қатысуыма ықпал етті</div>
+          <div class="scale-legend"><span>Мүлде келіспеймін</span><span>Толық келісемін</span></div>
+          <div class="scale-row">
+            <label><input type="radio" name="q3" value="1"><span>1</span></label>
+            <label><input type="radio" name="q3" value="2"><span>2</span></label>
+            <label><input type="radio" name="q3" value="3"><span>3</span></label>
+            <label><input type="radio" name="q3" value="4"><span>4</span></label>
+            <label><input type="radio" name="q3" value="5"><span>5</span></label>
+          </div>
+        </div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">4.</span>Геймификациялық сабақтарда материалды есте сақтауым жеңілдеді</div>
+          <div class="scale-legend"><span>Мүлде келіспеймін</span><span>Толық келісемін</span></div>
+          <div class="scale-row">
+            <label><input type="radio" name="q4" value="1"><span>1</span></label>
+            <label><input type="radio" name="q4" value="2"><span>2</span></label>
+            <label><input type="radio" name="q4" value="3"><span>3</span></label>
+            <label><input type="radio" name="q4" value="4"><span>4</span></label>
+            <label><input type="radio" name="q4" value="5"><span>5</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Бөлім 2 -->
+      <div class="section">
+        <div class="section-label">Бөлім 2 — Танымдық дағды</div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">5.</span>Геймификация сабақтарынан кейін химияға деген қызығушылығым артты</div>
+          <div class="scale-legend"><span>Мүлде келіспеймін</span><span>Толық келісемін</span></div>
+          <div class="scale-row">
+            <label><input type="radio" name="q5" value="1"><span>1</span></label>
+            <label><input type="radio" name="q5" value="2"><span>2</span></label>
+            <label><input type="radio" name="q5" value="3"><span>3</span></label>
+            <label><input type="radio" name="q5" value="4"><span>4</span></label>
+            <label><input type="radio" name="q5" value="5"><span>5</span></label>
+          </div>
+        </div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">6.</span>Виртуалды зертхана (симуляция) тәжірибені жақсы түсінуіме көмектесті</div>
+          <div class="scale-legend"><span>Мүлде келіспеймін</span><span>Толық келісемін</span></div>
+          <div class="scale-row">
+            <label><input type="radio" name="q6" value="1"><span>1</span></label>
+            <label><input type="radio" name="q6" value="2"><span>2</span></label>
+            <label><input type="radio" name="q6" value="3"><span>3</span></label>
+            <label><input type="radio" name="q6" value="4"><span>4</span></label>
+            <label><input type="radio" name="q6" value="5"><span>5</span></label>
+          </div>
+        </div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">7.</span>Геймификация сабақтарында сыни ойлауымды қолдануға мүмкіндік алдым</div>
+          <div class="scale-legend"><span>Мүлде келіспеймін</span><span>Толық келісемін</span></div>
+          <div class="scale-row">
+            <label><input type="radio" name="q7" value="1"><span>1</span></label>
+            <label><input type="radio" name="q7" value="2"><span>2</span></label>
+            <label><input type="radio" name="q7" value="3"><span>3</span></label>
+            <label><input type="radio" name="q7" value="4"><span>4</span></label>
+            <label><input type="radio" name="q7" value="5"><span>5</span></label>
+          </div>
+        </div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">8.</span>Геймификация «Ерітінділер және ерігіштік» тақырыбын меңгеруімді жеңілдетті</div>
+          <div class="scale-legend"><span>Мүлде келіспеймін</span><span>Толық келісемін</span></div>
+          <div class="scale-row">
+            <label><input type="radio" name="q8" value="1"><span>1</span></label>
+            <label><input type="radio" name="q8" value="2"><span>2</span></label>
+            <label><input type="radio" name="q8" value="3"><span>3</span></label>
+            <label><input type="radio" name="q8" value="4"><span>4</span></label>
+            <label><input type="radio" name="q8" value="5"><span>5</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Бөлім 3 -->
+      <div class="section">
+        <div class="section-label">Бөлім 3 — Платформалар мен әдістер</div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">9.</span>Сізге ең ұнаған геймификация платформасы немесе әдісі қайсысы? <em style="color:#aaa; font-size:12px;">(бірнеше таңдауға болады)</em></div>
+          <div class="opts-col">
+            <label><input type="checkbox" name="q9" value="gimkit"><span>Gimkit</span></label>
+            <label><input type="checkbox" name="q9" value="marquiz"><span>MarQuiz</span></label>
+            <label><input type="checkbox" name="q9" value="educaplay"><span>EducaPlay</span></label>
+            <label><input type="checkbox" name="q9" value="quizwhizer"><span>Quizwhizer</span></label>
+            <label><input type="checkbox" name="q9" value="simulation"><span>Виртуалды зертхана (симуляция)</span></label>
+            <label><input type="checkbox" name="q9" value="baige"><span>«Бәйге» топтық ойыны</span></label>
+            <label><input type="checkbox" name="q9" value="arkan"><span>«Арқан тартыс» ойыны</span></label>
+            <label><input type="checkbox" name="q9" value="classroomscreen"><span>Classroomscreen</span></label>
+          </div>
+        </div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">10.</span>Геймификация қолданылған сабақтар дәстүрлі сабақтармен салыстырғанда қалай болды?</div>
+          <div class="opts-col">
+            <label><input type="radio" name="q10" value="1"><span>Геймификациялық сабақтар әлдеқайда қызықты және тиімді</span></label>
+            <label><input type="radio" name="q10" value="2"><span>Геймификациялық сабақтар біраз жақсы</span></label>
+            <label><input type="radio" name="q10" value="3"><span>Екеуі де бірдей</span></label>
+            <label><input type="radio" name="q10" value="4"><span>Дәстүрлі сабақ жақсырақ</span></label>
+          </div>
+        </div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">11.</span>Геймификация қолданылған сабақтарда топтық жұмысқа қатысуым артты</div>
+          <div class="scale-legend"><span>Мүлде келіспеймін</span><span>Толық келісемін</span></div>
+          <div class="scale-row">
+            <label><input type="radio" name="q11" value="1"><span>1</span></label>
+            <label><input type="radio" name="q11" value="2"><span>2</span></label>
+            <label><input type="radio" name="q11" value="3"><span>3</span></label>
+            <label><input type="radio" name="q11" value="4"><span>4</span></label>
+            <label><input type="radio" name="q11" value="5"><span>5</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Бөлім 4 -->
+      <div class="section">
+        <div class="section-label">Бөлім 4 — Болашақ және ұсыныстар</div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">12.</span>Химия сабақтарында геймификация тұрақты қолданылса дейім</div>
+          <div class="opts-col">
+            <label><input type="radio" name="q12" value="1"><span>Иә, міндетті түрде қолданылуы керек</span></label>
+            <label><input type="radio" name="q12" value="2"><span>Иә, кейбір тақырыптарда қолданылса жеткілікті</span></label>
+            <label><input type="radio" name="q12" value="3"><span>Маған бәрібір</span></label>
+            <label><input type="radio" name="q12" value="4"><span>Жоқ, дәстүрлі форматта жақсырақ</span></label>
+          </div>
+        </div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">13.</span>Геймификация тек химиядан басқа пәндерде де қолданылса қандай болар еді?</div>
+          <div class="opts-col">
+            <label><input type="radio" name="q13" value="1"><span>Барлық пәндерде қолданылуы керек</span></label>
+            <label><input type="radio" name="q13" value="2"><span>Жаратылыстану пәндерінде ғана жақсы</span></label>
+            <label><input type="radio" name="q13" value="3"><span>Кейбір пәндерге ғана сай келеді</span></label>
+            <label><input type="radio" name="q13" value="4"><span>Басқа пәндерде қажет емес</span></label>
+          </div>
+        </div>
+
+        <div class="q-block">
+          <div class="q-text"><span class="q-num">14.</span>Геймификация сабақтарын жетілдіру үшін қандай ұсыныстарыңыз бар?</div>
+          <textarea name="q14" placeholder="Пікіріңізді жазыңыз..."></textarea>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button type="submit" class="submit-btn">Жіберу</button>
+      </div>
+    </form>
+
+    <div class="thank" id="thank">
+      <div class="icon">✓</div>
+      <h2>Сауалнамаға қатысқаныңызға рахмет!</h2>
+      <p>Сіздің жауаптарыңыз зерттеу нәтижелерін талдауда пайдаланылады.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('survey').addEventListener('submit', function(e) {
+  e.preventDefault();
+  this.style.display = 'none';
+  document.getElementById('thank').style.display = 'block';
+});
+</script>
+</body>
+</html>
